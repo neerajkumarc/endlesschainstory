@@ -1,7 +1,7 @@
 "use client"
 import { useState, useEffect, ChangeEvent } from 'react';
 import { db } from '../config/firebase';
-import { collection, addDoc, getDocs, getDoc, query, orderBy, updateDoc, doc } from 'firebase/firestore';
+import { collection, addDoc, getDocs, getDoc, query, orderBy, updateDoc, doc, Timestamp } from 'firebase/firestore';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import FingerprintJS from '@fingerprintjs/fingerprintjs';
@@ -55,10 +55,10 @@ export default function Home() {
     try {
       const querySnapshot = await getDocs(query(collection(db, 'dailyStory'), orderBy('createdAt')));
       const sentencesArray = querySnapshot.docs.map((doc) => {
-        const data = doc.data() as Sentence;
+        const data = doc.data() as Sentence & { createdAt: Timestamp };;
         return {
           ...data,
-          createdAt: data.createdAt.toDate(),
+          createdAt: data.createdAt.toDate() as Date,
         };
       });
       setSentences(sentencesArray);
