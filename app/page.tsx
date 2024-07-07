@@ -16,6 +16,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import Image from 'next/image';
+import moment from "moment"
 
 interface Sentence {
   text: string;
@@ -54,19 +55,14 @@ export default function Home() {
   const fetchSentences = async () => {
     try {
       const querySnapshot = await getDocs(query(collection(db, 'dailyStory'), orderBy('createdAt')));
-      const sentencesArray = querySnapshot.docs.map((doc) => {
-        const data = doc.data() as Sentence & { createdAt: Timestamp };;
-        return {
-          ...data,
-          createdAt: data.createdAt.toDate() as Date,
-        };
-      });
+      const sentencesArray = querySnapshot.docs.map((doc) => (
+        doc.data() as Sentence & { createdAt: Timestamp }
+      ));
       setSentences(sentencesArray);
-      const lastAddedTime = sentencesArray.length > 0 ? sentencesArray[sentencesArray.length - 1]?.createdAt : null;
-      const formattedLastAddedTime = lastAddedTime
-        ? `${lastAddedTime.toLocaleDateString()} ${lastAddedTime.toLocaleTimeString()}`
-        : null;
-      setLastUpdated(formattedLastAddedTime);
+      console.log(sentencesArray)
+      const lastAddedTime = sentencesArray.length > 0 ? sentencesArray[sentencesArray.length - 1]?.createdAt.toDate() : null;
+      console.log(lastAddedTime)
+      setLastUpdated(moment(lastAddedTime).fromNow());
     } catch (error) {
       console.error('Error fetching sentences:', error);
     }
