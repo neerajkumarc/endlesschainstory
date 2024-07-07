@@ -23,12 +23,16 @@ interface Sentence {
   createdAt: Date;
   deviceIdentifier: string;
 }
+interface Error {
+  text: string;
+  color: string;
+}
 
 export default function Home() {
   const [sentences, setSentences] = useState<Sentence[]>([]);
   const [newSentence, setNewSentence] = useState('');
   const [summary, setSummary] = useState<string | undefined>(undefined);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<Error | null>(null);
   const [lastUpdated, setLastUpdated] = useState<string | null>(null);
   const [deviceIdentifier, setDeviceIdentifier] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false)
@@ -61,7 +65,7 @@ export default function Home() {
           ...data,
           createdAt: data.createdAt.toDate() as Date,
         };
-    });
+      });
       setSentences(sentencesArray);
       const lastAddedTime = sentencesArray.length > 0 ? sentencesArray[sentencesArray.length - 1]?.createdAt : null;
       setLastUpdated(moment(lastAddedTime).fromNow());
@@ -81,19 +85,19 @@ export default function Home() {
     const trimmedSentence = newSentence.trim();
 
     if (!trimmedSentence) {
-      setError('Please enter a sentence.');
+      setError({text:'Please enter a sentence.', color:"red"});
       setIsLoading(false)
       return;
     }
 
     if (trimmedSentence.length < 10) {
-      setError('Please ensure your sentence is at least 10 characters long.');
+      setError({text:'Please ensure your sentence is at least 10 characters long.', color:"red"});
       setIsLoading(false)
       return;
     }
 
     if (trimmedSentence.length > 200) {
-      setError('Your sentence should be within 200 characters.');
+      setError({text:'Your sentence should be within 200 characters.',color:"red"});
       setIsLoading(false)
       return;
     }
@@ -102,7 +106,7 @@ export default function Home() {
     const lastSubmission = sortedSentences.find((sentence) => sentence.deviceIdentifier === deviceIdentifier);
 
     if (lastSubmission && (Date.now() - lastSubmission.createdAt.getTime()) < 60 * 60 * 1000) { // 1 hour in ms
-      setError('Each device can submit once per hour to ensure everyone gets a fair chance. Please return later to contribute again. Thank you for your patience!');
+      setError({text:'Each device can submit once per hour to ensure everyone gets a fair chance. Please return later to contribute again. Thank you for your patience!', color:"orange"});
       setIsLoading(false)
       return;
     }
@@ -125,7 +129,7 @@ export default function Home() {
 
     try {
       const result = await model.generateContent(prompt);
-      const text =  result.response.text();
+      const text = result.response.text();
       const jsonString = text.replace(/^```json\s*|```\s*$/g, '');
       const parsedJson = JSON.parse(jsonString.trim());
 
@@ -147,7 +151,7 @@ export default function Home() {
       }
     } catch (error) {
       console.error('Error adding sentence:', error);
-      setError("We apologize, but we couldn't add your sentence. Please try again later.");
+      setError({text:"We apologize, but we couldn't add your sentence. Please try again later.",color:"red"});
     }
 
     setIsLoading(false)
@@ -160,10 +164,10 @@ export default function Home() {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-background text-foreground p-4">
       <div className="max-w-2xl w-full px-4 sm:px-6 lg:px-8 py-12 space-y-6">
-       <div className='flex items-center gap-4 justify-center' >
-        <Image src={"/icon.png"} width={60} height={60} alt='icon'/>
-       <h1 className="text-4xl font-bold text-center">Endless Chain Story</h1>
-       </div>
+        <div className='flex items-center gap-4 justify-center' >
+          <Image src={"/icon.png"} width={60} height={60} alt='icon' />
+          <h1 className="text-4xl font-bold text-center">Endless Chain Story</h1>
+        </div>
         <div className="bg-card rounded-md shadow-sm overflow-hidden p-2">
           <div className="px-6 py-4">
             <div className='flex justify-between'>
@@ -171,25 +175,25 @@ export default function Home() {
               <div>
                 <p className="text-muted-foreground text-sm md:text:md text-center">⌛ Last Update: {lastUpdated}</p>
                 <div className='flex justify-center gap-3'>
-                <Dialog>
-  <DialogTrigger>
-    <p className='text-xs text-blue-600 underline'>Rules</p>
-  </DialogTrigger>
-  <DialogContent>
-    <DialogHeader>
-      <DialogTitle>Participation Guidelines</DialogTitle>
-      <DialogDescription>
-        <ol className="list-decimal list-inside space-y-2">
-          <li>Please ensure your sentence is between 10 and 200 characters.</li>
-          <li>You can submit one sentence per hour from each device. This helps ensure everyone has a fair chance to participate.</li>
-          <li>Ensure your sentence fits logically and coherently with the ongoing story.</li>
-          <li>Please keep your sentence in English and avoid repetitions.</li>
-        </ol>
-        <p className="mt-4">Let's build an amazing story together! 📖</p>
-      </DialogDescription>
-    </DialogHeader>
-  </DialogContent>
-</Dialog>
+                  <Dialog>
+                    <DialogTrigger>
+                      <p className='text-xs text-blue-600 underline'>Rules</p>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Participation Guidelines</DialogTitle>
+                        <DialogDescription>
+                          <ol className="list-decimal list-inside space-y-2">
+                            <li>Please ensure your sentence is between 10 and 200 characters.</li>
+                            <li>You can submit one sentence per hour from each device. This helps ensure everyone has a fair chance to participate.</li>
+                            <li>Ensure your sentence fits logically and coherently with the ongoing story.</li>
+                            <li>Please keep your sentence in English and avoid repetitions.</li>
+                          </ol>
+                          <p className="mt-4">Let's build an amazing story together! 📖</p>
+                        </DialogDescription>
+                      </DialogHeader>
+                    </DialogContent>
+                  </Dialog>
 
                   <Dialog>
                     <DialogTrigger>
@@ -218,7 +222,7 @@ export default function Home() {
               onChange={handleInputChange} />
             <Button type="submit" disabled={isLoading} >Submit</Button>
           </form>
-          {error && <p className="text-red-500 text-sm px-6">{error}</p>}
+          {error && <p className={`text-${error.color}-500 text-sm px-6`}>{error.text}</p>}
         </div>
       </div>
       <p className="text-xs text-muted-foreground text-center">
