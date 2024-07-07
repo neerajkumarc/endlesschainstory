@@ -55,13 +55,15 @@ export default function Home() {
   const fetchSentences = async () => {
     try {
       const querySnapshot = await getDocs(query(collection(db, 'dailyStory'), orderBy('createdAt')));
-      const sentencesArray = querySnapshot.docs.map((doc) => (
-        doc.data() as Sentence & { createdAt: Timestamp }
-      ));
+      const sentencesArray = querySnapshot.docs.map((doc) => {
+        const data = doc.data() as Sentence & { createdAt: Timestamp };;
+        return {
+          ...data,
+          createdAt: data.createdAt.toDate() as Date,
+        };
+    });
       setSentences(sentencesArray);
-      console.log(sentencesArray)
-      const lastAddedTime = sentencesArray.length > 0 ? sentencesArray[sentencesArray.length - 1]?.createdAt.toDate() : null;
-      console.log(lastAddedTime)
+      const lastAddedTime = sentencesArray.length > 0 ? sentencesArray[sentencesArray.length - 1]?.createdAt : null;
       setLastUpdated(moment(lastAddedTime).fromNow());
     } catch (error) {
       console.error('Error fetching sentences:', error);
