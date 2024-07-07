@@ -165,10 +165,30 @@ export default function Home() {
         <div className="bg-card rounded-md shadow-sm overflow-hidden p-2">
           <div className="px-6 py-4">
             <div className='flex justify-between'>
-              <p className="text-muted-foreground text-md">The ongoing story so far:</p>
+              <p className="text-muted-foreground text-sm md:text:md">📖 The ongoing story so far:</p>
               <div>
-                <p className="text-muted-foreground text-sm">Last Update: {lastUpdated}</p>
-                <div className='flex justify-end'>
+                <p className="text-muted-foreground text-sm md:text:md text-center">⌛ Last Update: {lastUpdated}</p>
+                <div className='flex justify-center gap-3'>
+                <Dialog>
+  <DialogTrigger>
+    <p className='text-xs text-blue-600 underline'>Rules</p>
+  </DialogTrigger>
+  <DialogContent>
+    <DialogHeader>
+      <DialogTitle>Participation Guidelines</DialogTitle>
+      <DialogDescription>
+        <ol className="list-decimal list-inside space-y-2">
+          <li>Please ensure your sentence is between 10 and 200 characters.</li>
+          <li>You can submit one sentence per hour from each device. This helps ensure everyone has a fair chance to participate.</li>
+          <li>Ensure your sentence fits logically and coherently with the ongoing story.</li>
+          <li>Please keep your sentence in English and avoid repetitions.</li>
+        </ol>
+        <p className="mt-4">Let's build an amazing story together! 📖</p>
+      </DialogDescription>
+    </DialogHeader>
+  </DialogContent>
+</Dialog>
+
                   <Dialog>
                     <DialogTrigger>
                       <p className='text-xs text-blue-600 underline'>Short Summary</p>
